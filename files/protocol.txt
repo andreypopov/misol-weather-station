@@ -1,0 +1,30 @@
+24 1d b0 62 70 2d 00 00 00 01 00 1e 00 44 4a 51 ee 01 86 fb 82
+
+dir: 176
+bat: 0
+tmp: 224
+hm: 45
+wind: 0
+gust: 0
+rain: 1
+uvi: 30
+light: 17482
+bar: 100091
+
+21 = identify tx type
+1d = security code
+b0 6 = wind direction 0-50m/s (0~100mph)
+2 70 = temperature [(624-400)/10=22.4 ̊C] -30 ̊C~60 ̊C +/-1°C
+2d = humidity [45%] 10%~99% +/-5%
+00 = wind speed [0/8*1.12=0m/s]
+00 = gust speed [0*1.12=5.6m/s]
+00 01 = accumulation rainfall [1mm]
+00 1e = uv [30W/cm2]
+00 44 4a = light [17482/10=1748.2lux]
+51 = crc value
+ee = F9 checksum value (sum of previous 16 types)
+01 86 = F9 checksum value (sum of previous 16 types)
+01 86 fb = barometric pressure [100091/100=1000.91hpa]
+82 = checksum value (for barometric pressure)
+
+

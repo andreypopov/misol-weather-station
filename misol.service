@@ -1,0 +1,11 @@
+[Unit]
+Description=Misol
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python /root/downloads/misol/misol.py
+
+[Install]
+WantedBy=multi-user.target
+
+
