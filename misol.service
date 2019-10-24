@@ -3,9 +3,12 @@ Description=Misol
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python /root/downloads/misol/misol.py
+ExecStart=/usr/bin/sudo /usr/bin/python3 /home/pi/misol/misol.py
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
 
 [Install]
 WantedBy=multi-user.target
-
 

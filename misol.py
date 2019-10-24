@@ -17,51 +17,51 @@ import paho.mqtt.client as mqtt
 client = mqtt.Client("Misol") #create new instance
 client.connect("127.0.0.1") #connect to broker
 
-client.publish("/devices/misol/meta/name","Misol Meteostation")
+client.publish("/devices/misol/meta/name","Misol Meteostation",qos=0,retain=True)
 
-client.publish("/devices/misol/controls/temperature/meta/type","value")
-client.publish("/devices/misol/controls/temperature/meta/readonly",1)
-client.publish("/devices/misol/controls/temperature/meta/order",1)
+client.publish("/devices/misol/controls/temperature/meta/type","value",qos=0,retain=True)
+client.publish("/devices/misol/controls/temperature/meta/readonly",1,qos=0,retain=True)
+client.publish("/devices/misol/controls/temperature/meta/order",1,qos=0,retain=True)
 
-client.publish("/devices/misol/controls/humidity/meta/type","value")
-client.publish("/devices/misol/controls/humidity/meta/readonly",1)
-client.publish("/devices/misol/controls/humidity/meta/order",2)
+client.publish("/devices/misol/controls/humidity/meta/type","value",qos=0,retain=True)
+client.publish("/devices/misol/controls/humidity/meta/readonly",1,qos=0,retain=True)
+client.publish("/devices/misol/controls/humidity/meta/order",2,qos=0,retain=True)
 
-client.publish("/devices/misol/controls/light/meta/type","value")
-client.publish("/devices/misol/controls/light/meta/readonly",1)
-client.publish("/devices/misol/controls/light/meta/order",3)
+client.publish("/devices/misol/controls/light/meta/type","value",qos=0,retain=True)
+client.publish("/devices/misol/controls/light/meta/readonly",1,qos=0,retain=True)
+client.publish("/devices/misol/controls/light/meta/order",3,qos=0,retain=True)
 
-client.publish("/devices/misol/controls/wind_direction/meta/type","value")
-client.publish("/devices/misol/controls/wind_direction/meta/readonly",1)
-client.publish("/devices/misol/controls/wind_direction/meta/order",4)
+client.publish("/devices/misol/controls/wind_direction/meta/type","value",qos=0,retain=True)
+client.publish("/devices/misol/controls/wind_direction/meta/readonly",1,qos=0,retain=True)
+client.publish("/devices/misol/controls/wind_direction/meta/order",4,qos=0,retain=True)
 
-client.publish("/devices/misol/controls/wind_speed/meta/type","value")
-client.publish("/devices/misol/controls/wind_speed/meta/readonly",1)
-client.publish("/devices/misol/controls/wind_speed/meta/order",5)
+client.publish("/devices/misol/controls/wind_speed/meta/type","value",qos=0,retain=True)
+client.publish("/devices/misol/controls/wind_speed/meta/readonly",1,qos=0,retain=True)
+client.publish("/devices/misol/controls/wind_speed/meta/order",5,qos=0,retain=True)
 
-client.publish("/devices/misol/controls/wind_gust/meta/type","value")
-client.publish("/devices/misol/controls/wind_gust/meta/readonly",1)
-client.publish("/devices/misol/controls/wind_gust/meta/order",6)
+client.publish("/devices/misol/controls/wind_gust/meta/type","value",qos=0,retain=True)
+client.publish("/devices/misol/controls/wind_gust/meta/readonly",1,qos=0,retain=True)
+client.publish("/devices/misol/controls/wind_gust/meta/order",6,qos=0,retain=True)
 
-client.publish("/devices/misol/controls/rain/meta/type","value")
-client.publish("/devices/misol/controls/rain/meta/readonly",1)
-client.publish("/devices/misol/controls/rain/meta/order",7)
+client.publish("/devices/misol/controls/rain/meta/type","value",qos=0,retain=True)
+client.publish("/devices/misol/controls/rain/meta/readonly",1,qos=0,retain=True)
+client.publish("/devices/misol/controls/rain/meta/order",7,qos=0,retain=True)
 
-client.publish("/devices/misol/controls/uvi/meta/type","value")
-client.publish("/devices/misol/controls/uvi/meta/readonly",1)
-client.publish("/devices/misol/controls/uvi/meta/order",8)
+client.publish("/devices/misol/controls/uvi/meta/type","value",qos=0,retain=True)
+client.publish("/devices/misol/controls/uvi/meta/readonly",1,qos=0,retain=True)
+client.publish("/devices/misol/controls/uvi/meta/order",8,qos=0,retain=True)
 
-client.publish("/devices/misol/controls/bar/meta/type","value")
-client.publish("/devices/misol/controls/bar/meta/readonly",1)
-client.publish("/devices/misol/controls/bar/meta/order",9)
+client.publish("/devices/misol/controls/bar/meta/type","value",qos=0,retain=True)
+client.publish("/devices/misol/controls/bar/meta/readonly",1,qos=0,retain=True)
+client.publish("/devices/misol/controls/bar/meta/order",9,qos=0,retain=True)
 
-client.publish("/devices/misol/controls/battery_low/meta/type","value")
-client.publish("/devices/misol/controls/battery_low/meta/readonly",1)
-client.publish("/devices/misol/controls/battery_low/meta/order",10)
+client.publish("/devices/misol/controls/battery_low/meta/type","value",qos=0,retain=True)
+client.publish("/devices/misol/controls/battery_low/meta/readonly",1,qos=0,retain=True)
+client.publish("/devices/misol/controls/battery_low/meta/order",10,qos=0,retain=True)
 
 
 def main():
-    s = serial.Serial('/dev/ttyUSB1', 9600)
+    s = serial.Serial('/dev/tty.SLAB_USBtoUART', 9600)
 
     wd = wdata()
     while True:
