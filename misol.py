@@ -1,5 +1,4 @@
-
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 #
 # disp.py - read from Fine Offset RS495 weather station.
 # Take RS485 via USB message from a Fine Offset WH2950 and interpret.
@@ -7,98 +6,91 @@
 #
 # Copyright (C) 2018, Doug Hall
 # Licensed under MIT license, see included file LICENSE or http://opensource.org/licenses/MIT
-#
-import serial
-import binascii
+
+import logging
+import time
+
+from paho.mqtt.client import Client, MQTT_ERR_SUCCESS
+from serial import Serial
+
 from wdata import RawWeatherData, wdata
 
-import paho.mqtt.client as mqtt
 
-client = mqtt.Client("Misol") #create new instance
-client.connect("127.0.0.1") #connect to broker
+def publish(client: Client, topic: str, order: int):
+    client.publish(f"{BASE}/{topic}/meta/type", "value", qos=0, retain=True)
+    client.publish(f"{BASE}/{topic}/meta/readonly", 1, qos=0, retain=True)
+    client.publish(f"{BASE}/{topic}/meta/order", order, qos=0, retain=True)
 
-client.publish("/devices/misol/meta/name","Misol Meteostation",qos=0,retain=True)
 
-client.publish("/devices/misol/controls/temperature/meta/type","value",qos=0,retain=True)
-client.publish("/devices/misol/controls/temperature/meta/readonly",1,qos=0,retain=True)
-client.publish("/devices/misol/controls/temperature/meta/order",1,qos=0,retain=True)
+logging.basicConfig(
+    level=logging.DEBUG, filename='/tmp/misol.log', filemode='w',
+    format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
+log = logging.getLogger(__name__)
 
-client.publish("/devices/misol/controls/humidity/meta/type","value",qos=0,retain=True)
-client.publish("/devices/misol/controls/humidity/meta/readonly",1,qos=0,retain=True)
-client.publish("/devices/misol/controls/humidity/meta/order",2,qos=0,retain=True)
-
-client.publish("/devices/misol/controls/light/meta/type","value",qos=0,retain=True)
-client.publish("/devices/misol/controls/light/meta/readonly",1,qos=0,retain=True)
-client.publish("/devices/misol/controls/light/meta/order",3,qos=0,retain=True)
-
-client.publish("/devices/misol/controls/wind_direction/meta/type","value",qos=0,retain=True)
-client.publish("/devices/misol/controls/wind_direction/meta/readonly",1,qos=0,retain=True)
-client.publish("/devices/misol/controls/wind_direction/meta/order",4,qos=0,retain=True)
-
-client.publish("/devices/misol/controls/wind_speed/meta/type","value",qos=0,retain=True)
-client.publish("/devices/misol/controls/wind_speed/meta/readonly",1,qos=0,retain=True)
-client.publish("/devices/misol/controls/wind_speed/meta/order",5,qos=0,retain=True)
-
-client.publish("/devices/misol/controls/wind_gust/meta/type","value",qos=0,retain=True)
-client.publish("/devices/misol/controls/wind_gust/meta/readonly",1,qos=0,retain=True)
-client.publish("/devices/misol/controls/wind_gust/meta/order",6,qos=0,retain=True)
-
-client.publish("/devices/misol/controls/rain/meta/type","value",qos=0,retain=True)
-client.publish("/devices/misol/controls/rain/meta/readonly",1,qos=0,retain=True)
-client.publish("/devices/misol/controls/rain/meta/order",7,qos=0,retain=True)
-
-client.publish("/devices/misol/controls/uvi/meta/type","value",qos=0,retain=True)
-client.publish("/devices/misol/controls/uvi/meta/readonly",1,qos=0,retain=True)
-client.publish("/devices/misol/controls/uvi/meta/order",8,qos=0,retain=True)
-
-client.publish("/devices/misol/controls/bar/meta/type","value",qos=0,retain=True)
-client.publish("/devices/misol/controls/bar/meta/readonly",1,qos=0,retain=True)
-client.publish("/devices/misol/controls/bar/meta/order",9,qos=0,retain=True)
-
-client.publish("/devices/misol/controls/battery_low/meta/type","value",qos=0,retain=True)
-client.publish("/devices/misol/controls/battery_low/meta/readonly",1,qos=0,retain=True)
-client.publish("/devices/misol/controls/battery_low/meta/order",10,qos=0,retain=True)
+BASE = '/devices/misol/controls'
+TOPICS = ['temperature', 'humidity', 'light', 'wind_direction', 'wind_speed',
+          'wind_gust', 'rain', 'uvi', 'bar', 'battery_low', 'last_update']
+UVI = [432, 851, 1210, 1570, 2017, 2761, 3100, 3512, 3918, 4277, 4650, 5029,
+       5230]
 
 
 def main():
-    s = serial.Serial('/dev/tty.SLAB_USBtoUART', 9600)
+    try:
+        client = Client("Misol")  # create new instance
+        client.connect("192.168.1.3")  # connect to broker
 
-    wd = wdata()
-    while True:
-        b = s.read(21)
-        wd = wdata.from_buffer_copy(b)
-        print(binascii.hexlify(bytearray(b)))
-        print("dir: {}".format((wd.rawdata.DIR8<<8)+wd.rawdata.DIR))
-        client.publish("/devices/misol/controls/wind_direction",wd.rawdata.DIR)
-        print("bat: {}".format(wd.rawdata.BAT))
-        client.publish("/devices/misol/controls/battery_low",wd.rawdata.BAT)
+        client.publish("/devices/misol/meta/name", "Misol Meteostation", qos=0,
+                       retain=True)
 
-        print("tmp: {}".format((wd.rawdata.TMP-400)))
-        client.publish("/devices/misol/controls/temperature",wd.rawdata.TMP-400)
+        for order, topic in enumerate(TOPICS, 1):
+            publish(client, topic, order)
 
-        print("hm: {}".format(wd.rawdata.HM))
-        client.publish("/devices/misol/controls/humidity",wd.rawdata.HM)
-        print("wind: {}".format((wd.rawdata.WSP8<<8)+wd.rawdata.WIND))
-        client.publish("/devices/misol/controls/wind_speed",wd.rawdata.WIND)
-        print("gust: {}".format(wd.rawdata.GUST))
-        client.publish("/devices/misol/controls/wind_gust",wd.rawdata.GUST)
-        print("rain: {}".format(wd.rawdata.RAIN))
-        client.publish("/devices/misol/controls/rain",wd.rawdata.RAIN)
-        print("uvi: {}".format(wd.rawdata.UVI))
-        client.publish("/devices/misol/controls/uvi",wd.rawdata.UVI)
-        print("light: {}".format(wd.rawdata.LIGHT))
-        byteArray = bytes(wd.rawdata.LIGHT)
-        client.publish("/devices/misol/controls/light",byteArray,0)
+        log.debug("Connected to MQTT")
 
-        print("bar: {}".format(wd.rawdata.BAR))
-        byteArray2 = bytes(wd.rawdata.BAR)
-        client.publish("/devices/misol/controls/bar",byteArray2,0)
+        s = Serial('/dev/ttyUSB0', 9600, timeout=60)
 
-        print("================================")
-    ser.close()
+        log.debug("Connected to serial")
+
+        while True:
+            log.debug("Start Read")
+
+            raw = s.read(21)
+
+            checksum = sum(i for i in raw[:16]) & 0xFF
+            assert checksum == raw[16], "Wrong checksum"
+
+            wd = wdata.from_buffer_copy(raw)
+            rwd: RawWeatherData = wd.rawdata
+
+            wind = ((wd.rawdata.WSP8 << 8) + wd.rawdata.WIND) / 8 * 1.12
+            uvi = next((i for i, v in enumerate(UVI) if rwd.UVI <= v), 13)
+
+            payload = {
+                'wind_direction': (wd.rawdata.DIR8 << 8) + wd.rawdata.DIR,
+                'battery_low': rwd.BAT,
+                'temperature': (rwd.TMP - 400) / 10.0,
+                'humidity': rwd.HM,
+                'wind_speed': round(wind),
+                'wind_gust': round(rwd.GUST * 1.12),
+                'rain': rwd.RAIN,
+                'uvi': uvi,
+                'light': round(rwd.LIGHT / 10.0),
+                'bar': round(rwd.BAR / 100.0, 2),
+                'last_update': int(time.time())
+            }
+
+            for k, v in payload.items():
+                info = client.publish(f"{BASE}/{k}", v, retain=True)
+                assert info.rc == MQTT_ERR_SUCCESS, f"MQTT Error: {info.rc}"
+
+            log.debug("Updated MQTT")
+
+    except AssertionError as e:
+        log.error(e)
+
+    except:
+        log.exception("Exception")
+
 
 if __name__ == '__main__':
     main()
-
-
-
